@@ -179,7 +179,7 @@ while ($go) {
     # TODO: pretty up the html, can you use css in google maps? otherwise inline styles ...
     #foreach my $key (keys %contents) {
     # we want the content ordered correctly
-    foreach my $key (('Name',
+    foreach my $key ((
                       'Location',
                       'Overview',
                       'Grade',
@@ -218,8 +218,6 @@ while ($go) {
     elsif ($contents{'Grade'} =~ m{ \A Expert }xms) {
         $data->{$area_name}{$track_num}{grade} = 'Expert';
     }
-    #name
-    $data->{$area_name}{$track_num}{name} = $contents{'Name'};
 
     # KML PARSING
     unless (defined ($kml = get $kml_href)) {
