@@ -24,7 +24,7 @@ use POSIX qw(ceil);
 
 # 3. add usage and pod
 
-# 4. internal links in content are broken, fix all relative links to point at full tracks.org.nz url
+# 4. deal with img and b tags in "right" content
 
 # 5. add licence and author etc, gpl probabily
 
@@ -149,10 +149,27 @@ while ($go) {
                 $key = $p->textContent;
             }
             elsif ($id eq 'right') {
-                # TODO childnode string concat
-                my $text = $p->toString;
-                $text =~ s{<p id="right">}{};
-                $text =~ s{</p>$}{};
+                my $text;
+                foreach my $child ($p->childNodes) {
+                    my $name = $child->nodeName;
+                    if ($name eq '#text') {
+                        $text .= $child->textContent;
+                    }
+                    elsif ($name eq 'br') {
+                        $text .= $child->toString;
+                    }
+                    elsif ($name eq 'a') {
+                        my $url = $child->getAttribute('href');
+                        my $content = $child->textContent;
+                        $url =~ s{ \A /track/show/ }{$site/track/show/}xms;
+                        $text .= '<a href="' . $url . '">' . $content . '</a>';
+                    }
+                    # TODO deal with img tags (used in Altitude section)
+                    # deal with b tags
+                    else {
+                        warn "new node that we dont know about yet: '$name', please fix\n";
+                    }
+                }
                 $contents{$key} = $text;
             }
         }
