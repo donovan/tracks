@@ -32,27 +32,162 @@ use POSIX qw(ceil);
 # only one path is being picked up
 
 # TODO
-# expand this into a data structure with stuff for areas, eg the view position
-# use this to mke new areas top level
-my @areas = (
-    'Makara Peak',
-    'Hawkins Hill',
-    'Polhill',
-    'Wrights Hill',
-    'Mt Victoria',
-    'Karori Park',
-    'Western Hills',
-    'Wainuiomata trail project',
-    'Wainuiomata',
-    'Pencarrow Lakes',
-    'Belmont Regional Park',
-    'Hutt River Trail',
-    'Battle Hill',
-    'Northern Suburbs',
-    'Akatarawa Forest',
-    'Pakuratahi Forest',
-    'Hutt Valley',
-);
+# add the rest of the data for the areas
+my $areas = {
+    '1' => {
+        name        => 'Makara Peak',
+        area_num    => '1',
+        latitude    => '',
+        longitude   => '',
+        range       => '',
+        heading     => '',
+        tilt        => '',
+    },
+    '2' => {
+        name        => 'Hawkins Hill',
+        area_num    => '2',
+        latitude    => '',
+        longitude   => '',
+        range       => '',
+        heading     => '',
+        tilt        => '',
+    },
+    '3' => {
+        name        => 'Polhill',
+        area_num    => '3',
+        latitude    => '',
+        longitude   => '',
+        range       => '',
+        heading     => '',
+        tilt        => '',
+    },
+    '4' => {
+        name        => 'Wrights Hill',
+        area_num    => '4',
+        latitude    => '',
+        longitude   => '',
+        range       => '',
+        heading     => '',
+        tilt        => '',
+    },
+    '5' => {
+        name        => 'Mt Victoria',
+        area_num    => '5',
+        latitude    => '',
+        longitude   => '',
+        range       => '',
+        heading     => '',
+        tilt        => '',
+    },
+    '6' => {
+        name        => 'Karori Park',
+        area_num    => '6',
+        latitude    => '',
+        longitude   => '',
+        range       => '',
+        heading     => '',
+        tilt        => '',
+    },
+    '7' => {
+        name        => 'Western Hills',
+        area_num    => '7',
+        latitude    => '',
+        longitude   => '',
+        range       => '',
+        heading     => '',
+        tilt        => '',
+    },
+    '8' => {
+        name        => 'Wainuiomata trail project',
+        area_num    => '8',
+        latitude    => '',
+        longitude   => '',
+        range       => '',
+        heading     => '',
+        tilt        => '',
+    },
+    '9' => {
+        name        => 'Wainuiomata',
+        area_num    => '9',
+        latitude    => '',
+        longitude   => '',
+        range       => '',
+        heading     => '',
+        tilt        => '',
+    },
+    '10' => {
+        name        => 'Pencarrow Lakes',
+        area_num    => '10',
+        latitude    => '',
+        longitude   => '',
+        range       => '',
+        heading     => '',
+        tilt        => '',
+    },
+    '11' => {
+        name        => 'Belmont Regional Park',
+        area_num    => '11',
+        latitude    => '',
+        longitude   => '',
+        range       => '',
+        heading     => '',
+        tilt        => '',
+    },
+    '12' => {
+        name        => 'Hutt River Trail',
+        area_num    => '12',
+        latitude    => '',
+        longitude   => '',
+        range       => '',
+        heading     => '',
+        tilt        => '',
+    },
+    '13' => {
+        name        => 'Battle Hill',
+        area_num    => '13',
+        latitude    => '',
+        longitude   => '',
+        range       => '',
+        heading     => '',
+        tilt        => '',
+    },
+    '14' => {
+        name        => 'Northern Suburbs',
+        area_num    => '14',
+        latitude    => '',
+        longitude   => '',
+        range       => '',
+        heading     => '',
+        tilt        => '',
+    },
+    '15' => {
+        name        => 'Akatarawa Forest',
+        area_num    => '15',
+        latitude    => '',
+        longitude   => '',
+        range       => '',
+        heading     => '',
+        tilt        => '',
+    },
+    '16' => {
+        name        => 'Pakuratahi Forest',
+        area_num    => '16',
+        latitude    => '',
+        longitude   => '',
+        range       => '',
+        heading     => '',
+        tilt        => '',
+    },
+    '17' => {
+        name        => 'Hutt Valley',
+        area_num    => '17',
+        latitude    => '',
+        longitude   => '',
+        range       => '',
+        heading     => '',
+        tilt        => '',
+    },
+};
 
 my %icons = (
     Beginner     => 'ylw',
@@ -134,7 +269,7 @@ while ($go) {
     # 1_1_6_35.
     $filename =~ s/\.$//;
     my ($area, $track) = (split /\_/, $filename)[-2, -1];
-    my $area_name = $areas[$area - 1];
+    my $area_name = $areas->{$area}{name};
     # if you get this warning you probably need to add a new area to @areas
     warn "\$area_name is undefined for track $url, check for a new area\n" unless defined $area_name;
 
