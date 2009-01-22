@@ -212,7 +212,7 @@ my $track_url = 'http://tracks.org.nz/track/show/';
 my $site = 'http://tracks.org.nz';
 my $data = {};
 my $go = 1;
-# change this if youre testing and dont want to download 220+ tracks every time you run the script
+# change this if you're testing and don't want to download 230+ tracks every time you run the script
 my $track_num = 1;
 my $failed = 0;
 
@@ -353,6 +353,9 @@ while ($go) {
     elsif ($contents{'Grade'} =~ m{ \A Expert }xms) {
         $data->{$area_name}{$track_num}{grade} = 'Expert';
     }
+
+    #name
+    $data->{$area_name}{$track_num}{name} = $contents{'Name'};
 
     # KML PARSING
     unless (defined ($kml = get $kml_href)) {
