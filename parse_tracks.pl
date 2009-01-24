@@ -31,6 +31,10 @@ use POSIX qw(ceil);
 # 6. some of the most recent tracks with multiple paths are broken eg: 229 330
 # only one path is being picked up
 
+#7 addtrack reports
+
+#8 make kmz file
+
 # TODO
 # add the rest of the data for the areas
 my $areas = {
@@ -319,6 +323,7 @@ while ($go) {
                       'Overview',
                       'Grade',
                       'Access',
+                      'Description',
                       'Getting there',
                       'Other notes',
                       'Length',
@@ -481,8 +486,8 @@ $areas_open->appendTextNode('1');
 $areas_folder->appendChild($areas_name);
 $areas_folder->appendChild($areas_open);
 
-# loop through the areas
-foreach my $area (keys %{$data}) {
+# loop through the areas, sorted alphabetically
+foreach my $area (sort keys %{$data}) {
 
     my $area_folder         = $dom->createElement('Folder');
     $areas_folder->appendChild($area_folder);
@@ -496,8 +501,8 @@ foreach my $area (keys %{$data}) {
     $area_folder->appendChild($area_name);
     $area_folder->appendChild($area_open);
 
-    # loop through the tracks
-    foreach my $track (keys %{$data->{$area}}) {
+    # loop through the tracks, sort by track name
+    foreach my $track (sort { $data->{$area}{$a}{name} cmp $data->{$area}{$b}{name} } keys %{$data->{$area}}) {
 
         my $track_document = $dom->createElement('Document');
         $area_folder->appendChild($track_document);
