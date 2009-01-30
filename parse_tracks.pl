@@ -31,7 +31,7 @@ use POSIX qw(ceil);
 # 6. some of the most recent tracks with multiple paths are broken eg: 229 330
 # only one path is being picked up
 
-#7 addtrack reports
+#7 add track reports
 
 #8 make kmz file
 
@@ -257,7 +257,7 @@ while ($go) {
 
     # grab the url for the kml file
     foreach my $a ( $dom->findnodes(q{//p/a}) ) {
-        if ($a->textContent eq 'Download GPS path') {
+        if ($a->textContent eq 'kml') {
             $kml_href = $a->getAttribute('href');
         }
     }
