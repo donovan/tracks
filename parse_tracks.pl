@@ -37,6 +37,7 @@ use POSIX qw(ceil);
 
 # TODO
 # add the rest of the data for the areas
+
 my $areas = {
     '1' => {
         name        => 'Makara Peak',
@@ -193,6 +194,7 @@ my $areas = {
     },
 };
 
+
 my %icons = (
     Beginner     => 'ylw',
     Easy         => 'grn',
@@ -216,12 +218,14 @@ my $track_url = 'http://tracks.org.nz/track/show/';
 my $site = 'http://tracks.org.nz';
 my $data = {};
 my $go = 1;
-# change this if you're testing and don't want to download 230+ tracks every time you run the script
 my $track_num = 1;
 my $failed = 0;
 
+# change $max if you want to do all the tracks
+my $max = 10;
+
 # main loop which downloads and processes tracks.org.nz tracks
-while ($go) {
+while ($track_num < $max) { 
     my $url = $track_url . $track_num;
     warn "-------------------------------------------------------------\n";
     warn "processing $url\n";
@@ -270,45 +274,53 @@ while ($go) {
 
     $kml_href = $site . $kml_href;
     my $filename = fileparse($kml_href, 'kml');
-    # 1_1_6_35.
+    # NB KML file names are now <id>.kml not <region>_<area>_<id>.kml
     $filename =~ s/\.$//;
-    my ($area, $track) = (split /\_/, $filename)[-2, -1];
-    my $area_name = $areas->{$area}{name};
-    # if you get this warning you probably need to add a new area to @areas
-    warn "\$area_name is undefined for track $url, check for a new area\n" unless defined $area_name;
 
     my %contents;
     my $key;
+
     # go through the paragraphs
     # get childnodes and then convert to string and concatenate
-    foreach my $p ( $dom->findnodes(q{//div[@id='content']/p}) ) {
-        my $id = $p->getAttribute('id');
+	my $area_name;
+	foreach my $div ( $dom->findnodes(q{//div[@class='content']/div}) ) {
+        #my $id = $p->getAttribute('id');
+		my $id = $div->getAttribute('class');
+
         if ($id) {
             if ($id eq 'left') {
-                $key = $p->textContent;
+                $key = $div->textContent;
             }
             elsif ($id eq 'right') {
+				if ($key eq 'Location') {
+					my $location = $div->textContent;
+					# We want to get "Makara Peak" out of "Makara Peak, Wellington, New Zealand"
+					$area_name = (split /\,/, $location)[0]; 
+				}				
+
                 my $text;
-                foreach my $child ($p->childNodes) {
+
+                foreach my $child ($div->childNodes) {
                     my $name = $child->nodeName;
-                    if ($name eq '#text') {
-                        $text .= $child->textContent;
-                    }
-                    elsif ($name eq 'br') {
-                        $text .= $child->toString;
-                    }
-                    elsif ($name eq 'a') {
-                        my $url = $child->getAttribute('href');
-                        my $content = $child->textContent;
-                        $url =~ s{ \A /track/show/ }{$site/track/show/}xms;
-                        $text .= '<a href="' . $url . '">' . $content . '</a>';
-                    }
-                    # TODO deal with img tags (used in Altitude section)
-                    # deal with b tags
-                    else {
-                        warn "new node that we dont know about yet: '$name', please fix\n";
-                    }
+
+                   	if ($name eq 'p') {												
+						# gets text with in <p> tags
+                    	$text .= $child->textContent;
+						
+						# TODO get videos, they are <object> inside <p> tag
+						#$text .= $child->toString;
+						#foreach my $gc ($child->childNodes) {
+						#	if ($gc->nodeName eq "object") {
+						#		warn "object:";
+						#		my $g = $child->toString;
+						#		warn $g;
+						#		print "\n";
+						#		$text .= $g;
+						#	}
+						#}
+                    }						
                 }
+
                 $contents{$key} = $text;
             }
         }
@@ -383,22 +395,18 @@ while ($go) {
     # Check that we got a dom object back
     die q{Parsing failed} unless defined $dom2;
 
-    # TODO, this is ugly, find a LibXML function to find the ns uri ...
-    # find the ns version
-    my $version;
-    if ( $dom2->toString =~ m{ xmlns="http://earth.google.com/kml/2.(\d)" }xms ) {
-        $version = $1;
-    }
-
     my $xc = XML::LibXML::XPathContext->new($dom2);
-    $xc->registerNs('kml', "http://earth.google.com/kml/2.$version");
-
     my %coords;
     #<Placemark>
     #   <name>Sally Alley</name>
     #   <LineString>
     #       <coordinates>
-    foreach my $node ( $xc->findnodes(q{//kml:coordinates}) ) {
+
+	# NB the KML files on tracks seem to have multiple and varying namespaces
+	# this meant findNodes failed due to findNodes caring about namespaces when we dont
+	# this should grab coords regardless of stupid fucking namespaces
+	foreach my $node ( $xc->findnodes(q{//*[name() = 'coordinates']}) ) {
+
         my $coords = $node->textContent;
         my $line_name;
         my $LineString = $node->parentNode;
