@@ -31,28 +31,169 @@ use POSIX qw(ceil);
 # 6. some of the most recent tracks with multiple paths are broken eg: 229 330
 # only one path is being picked up
 
+#7 add track reports
+
+#8 make kmz file
+
 # TODO
-# expand this into a data structure with stuff for areas, eg the view position
-# use this to mke new areas top level
-my @areas = (
-    'Makara Peak',
-    'Hawkins Hill',
-    'Polhill',
-    'Wrights Hill',
-    'Mt Victoria',
-    'Karori Park',
-    'Western Hills',
-    'Wainuiomata trail project',
-    'Wainuiomata',
-    'Pencarrow Lakes',
-    'Belmont Regional Park',
-    'Hutt River Trail',
-    'Battle Hill',
-    'Northern Suburbs',
-    'Akatarawa Forest',
-    'Pakuratahi Forest',
-    'Hutt Valley',
-);
+# add the rest of the data for the areas
+
+my $areas = {
+    '1' => {
+        name        => 'Makara Peak',
+        area_num    => '1',
+        latitude    => '',
+        longitude   => '',
+        range       => '',
+        heading     => '',
+        tilt        => '',
+    },
+    '2' => {
+        name        => 'Hawkins Hill',
+        area_num    => '2',
+        latitude    => '',
+        longitude   => '',
+        range       => '',
+        heading     => '',
+        tilt        => '',
+    },
+    '3' => {
+        name        => 'Polhill',
+        area_num    => '3',
+        latitude    => '',
+        longitude   => '',
+        range       => '',
+        heading     => '',
+        tilt        => '',
+    },
+    '4' => {
+        name        => 'Wrights Hill',
+        area_num    => '4',
+        latitude    => '',
+        longitude   => '',
+        range       => '',
+        heading     => '',
+        tilt        => '',
+    },
+    '5' => {
+        name        => 'Mt Victoria',
+        area_num    => '5',
+        latitude    => '',
+        longitude   => '',
+        range       => '',
+        heading     => '',
+        tilt        => '',
+    },
+    '6' => {
+        name        => 'Karori Park',
+        area_num    => '6',
+        latitude    => '',
+        longitude   => '',
+        range       => '',
+        heading     => '',
+        tilt        => '',
+    },
+    '7' => {
+        name        => 'Western Hills',
+        area_num    => '7',
+        latitude    => '',
+        longitude   => '',
+        range       => '',
+        heading     => '',
+        tilt        => '',
+    },
+    '8' => {
+        name        => 'Wainuiomata trail project',
+        area_num    => '8',
+        latitude    => '',
+        longitude   => '',
+        range       => '',
+        heading     => '',
+        tilt        => '',
+    },
+    '9' => {
+        name        => 'Wainuiomata',
+        area_num    => '9',
+        latitude    => '',
+        longitude   => '',
+        range       => '',
+        heading     => '',
+        tilt        => '',
+    },
+    '10' => {
+        name        => 'Pencarrow Lakes',
+        area_num    => '10',
+        latitude    => '',
+        longitude   => '',
+        range       => '',
+        heading     => '',
+        tilt        => '',
+    },
+    '11' => {
+        name        => 'Belmont Regional Park',
+        area_num    => '11',
+        latitude    => '',
+        longitude   => '',
+        range       => '',
+        heading     => '',
+        tilt        => '',
+    },
+    '12' => {
+        name        => 'Hutt River Trail',
+        area_num    => '12',
+        latitude    => '',
+        longitude   => '',
+        range       => '',
+        heading     => '',
+        tilt        => '',
+    },
+    '13' => {
+        name        => 'Battle Hill',
+        area_num    => '13',
+        latitude    => '',
+        longitude   => '',
+        range       => '',
+        heading     => '',
+        tilt        => '',
+    },
+    '14' => {
+        name        => 'Northern Suburbs',
+        area_num    => '14',
+        latitude    => '',
+        longitude   => '',
+        range       => '',
+        heading     => '',
+        tilt        => '',
+    },
+    '15' => {
+        name        => 'Akatarawa Forest',
+        area_num    => '15',
+        latitude    => '',
+        longitude   => '',
+        range       => '',
+        heading     => '',
+        tilt        => '',
+    },
+    '16' => {
+        name        => 'Pakuratahi Forest',
+        area_num    => '16',
+        latitude    => '',
+        longitude   => '',
+        range       => '',
+        heading     => '',
+        tilt        => '',
+    },
+    '17' => {
+        name        => 'Hutt Valley',
+        area_num    => '17',
+        latitude    => '',
+        longitude   => '',
+        range       => '',
+        heading     => '',
+        tilt        => '',
+    },
+};
+
 
 my %icons = (
     Beginner     => 'ylw',
@@ -77,12 +218,14 @@ my $track_url = 'http://tracks.org.nz/track/show/';
 my $site = 'http://tracks.org.nz';
 my $data = {};
 my $go = 1;
-# change this if youre testing and dont want to download 220+ tracks every time you run the script
 my $track_num = 1;
 my $failed = 0;
 
+# change $max if you want to do all the tracks
+my $max = 10;
+
 # main loop which downloads and processes tracks.org.nz tracks
-while ($go) {
+while ($track_num < $max) { 
     my $url = $track_url . $track_num;
     warn "-------------------------------------------------------------\n";
     warn "processing $url\n";
@@ -118,7 +261,7 @@ while ($go) {
 
     # grab the url for the kml file
     foreach my $a ( $dom->findnodes(q{//p/a}) ) {
-        if ($a->textContent eq 'Download GPS path') {
+        if ($a->textContent eq 'kml') {
             $kml_href = $a->getAttribute('href');
         }
     }
@@ -131,45 +274,53 @@ while ($go) {
 
     $kml_href = $site . $kml_href;
     my $filename = fileparse($kml_href, 'kml');
-    # 1_1_6_35.
+    # NB KML file names are now <id>.kml not <region>_<area>_<id>.kml
     $filename =~ s/\.$//;
-    my ($area, $track) = (split /\_/, $filename)[-2, -1];
-    my $area_name = $areas[$area - 1];
-    # if you get this warning you probably need to add a new area to @areas
-    warn "\$area_name is undefined for track $url, check for a new area\n" unless defined $area_name;
 
     my %contents;
     my $key;
+
     # go through the paragraphs
     # get childnodes and then convert to string and concatenate
-    foreach my $p ( $dom->findnodes(q{//div[@id='content']/p}) ) {
-        my $id = $p->getAttribute('id');
+	my $area_name;
+	foreach my $div ( $dom->findnodes(q{//div[@class='content']/div}) ) {
+        #my $id = $p->getAttribute('id');
+		my $id = $div->getAttribute('class');
+
         if ($id) {
             if ($id eq 'left') {
-                $key = $p->textContent;
+                $key = $div->textContent;
             }
             elsif ($id eq 'right') {
+				if ($key eq 'Location') {
+					my $location = $div->textContent;
+					# We want to get "Makara Peak" out of "Makara Peak, Wellington, New Zealand"
+					$area_name = (split /\,/, $location)[0]; 
+				}				
+
                 my $text;
-                foreach my $child ($p->childNodes) {
+
+                foreach my $child ($div->childNodes) {
                     my $name = $child->nodeName;
-                    if ($name eq '#text') {
-                        $text .= $child->textContent;
-                    }
-                    elsif ($name eq 'br') {
-                        $text .= $child->toString;
-                    }
-                    elsif ($name eq 'a') {
-                        my $url = $child->getAttribute('href');
-                        my $content = $child->textContent;
-                        $url =~ s{ \A /track/show/ }{$site/track/show/}xms;
-                        $text .= '<a href="' . $url . '">' . $content . '</a>';
-                    }
-                    # TODO deal with img tags (used in Altitude section)
-                    # deal with b tags
-                    else {
-                        warn "new node that we dont know about yet: '$name', please fix\n";
-                    }
+
+                   	if ($name eq 'p') {												
+						# gets text with in <p> tags
+                    	$text .= $child->textContent;
+						
+						# TODO get videos, they are <object> inside <p> tag
+						#$text .= $child->toString;
+						#foreach my $gc ($child->childNodes) {
+						#	if ($gc->nodeName eq "object") {
+						#		warn "object:";
+						#		my $g = $child->toString;
+						#		warn $g;
+						#		print "\n";
+						#		$text .= $g;
+						#	}
+						#}
+                    }						
                 }
+
                 $contents{$key} = $text;
             }
         }
@@ -184,6 +335,7 @@ while ($go) {
                       'Overview',
                       'Grade',
                       'Access',
+                      'Description',
                       'Getting there',
                       'Other notes',
                       'Length',
@@ -219,6 +371,9 @@ while ($go) {
         $data->{$area_name}{$track_num}{grade} = 'Expert';
     }
 
+    #name
+    $data->{$area_name}{$track_num}{name} = $contents{'Name'};
+
     # KML PARSING
     unless (defined ($kml = get $kml_href)) {
             die "could not get $kml_href\n";
@@ -240,22 +395,18 @@ while ($go) {
     # Check that we got a dom object back
     die q{Parsing failed} unless defined $dom2;
 
-    # TODO, this is ugly, find a LibXML function to find the ns uri ...
-    # find the ns version
-    my $version;
-    if ( $dom2->toString =~ m{ xmlns="http://earth.google.com/kml/2.(\d)" }xms ) {
-        $version = $1;
-    }
-
     my $xc = XML::LibXML::XPathContext->new($dom2);
-    $xc->registerNs('kml', "http://earth.google.com/kml/2.$version");
-
     my %coords;
     #<Placemark>
     #   <name>Sally Alley</name>
     #   <LineString>
     #       <coordinates>
-    foreach my $node ( $xc->findnodes(q{//kml:coordinates}) ) {
+
+	# NB the KML files on tracks seem to have multiple and varying namespaces
+	# this meant findNodes failed due to findNodes caring about namespaces when we dont
+	# this should grab coords regardless of stupid fucking namespaces
+	foreach my $node ( $xc->findnodes(q{//*[name() = 'coordinates']}) ) {
+
         my $coords = $node->textContent;
         my $line_name;
         my $LineString = $node->parentNode;
@@ -343,8 +494,8 @@ $areas_open->appendTextNode('1');
 $areas_folder->appendChild($areas_name);
 $areas_folder->appendChild($areas_open);
 
-# loop through the areas
-foreach my $area (keys %{$data}) {
+# loop through the areas, sorted alphabetically
+foreach my $area (sort keys %{$data}) {
 
     my $area_folder         = $dom->createElement('Folder');
     $areas_folder->appendChild($area_folder);
@@ -358,8 +509,8 @@ foreach my $area (keys %{$data}) {
     $area_folder->appendChild($area_name);
     $area_folder->appendChild($area_open);
 
-    # loop through the tracks
-    foreach my $track (keys %{$data->{$area}}) {
+    # loop through the tracks, sort by track name
+    foreach my $track (sort { $data->{$area}{$a}{name} cmp $data->{$area}{$b}{name} } keys %{$data->{$area}}) {
 
         my $track_document = $dom->createElement('Document');
         $area_folder->appendChild($track_document);
