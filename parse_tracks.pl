@@ -194,7 +194,6 @@ my $areas = {
     },
 };
 
-
 my %icons = (
     Beginner     => 'ylw',
     Easy         => 'grn',
@@ -225,7 +224,7 @@ my $failed = 0;
 my $max = 10;
 
 # main loop which downloads and processes tracks.org.nz tracks
-while ($track_num < $max) { 
+while ($track_num < $max) {
     my $url = $track_url . $track_num;
     warn "-------------------------------------------------------------\n";
     warn "processing $url\n";
@@ -282,43 +281,43 @@ while ($track_num < $max) {
 
     # go through the paragraphs
     # get childnodes and then convert to string and concatenate
-	my $area_name;
-	foreach my $div ( $dom->findnodes(q{//div[@class='content']/div}) ) {
+    my $area_name;
+    foreach my $div ( $dom->findnodes(q{//div[@class='content']/div}) ) {
         #my $id = $p->getAttribute('id');
-		my $id = $div->getAttribute('class');
+        my $id = $div->getAttribute('class');
 
         if ($id) {
             if ($id eq 'left') {
                 $key = $div->textContent;
             }
             elsif ($id eq 'right') {
-				if ($key eq 'Location') {
-					my $location = $div->textContent;
-					# We want to get "Makara Peak" out of "Makara Peak, Wellington, New Zealand"
-					$area_name = (split /\,/, $location)[0]; 
-				}				
+                if ($key eq 'Location') {
+                    my $location = $div->textContent;
+                    # We want to get "Makara Peak" out of "Makara Peak, Wellington, New Zealand"
+                    $area_name = (split /\,/, $location)[0];
+                }
 
                 my $text;
 
                 foreach my $child ($div->childNodes) {
                     my $name = $child->nodeName;
 
-                   	if ($name eq 'p') {												
-						# gets text with in <p> tags
-                    	$text .= $child->textContent;
-						
-						# TODO get videos, they are <object> inside <p> tag
-						#$text .= $child->toString;
-						#foreach my $gc ($child->childNodes) {
-						#	if ($gc->nodeName eq "object") {
-						#		warn "object:";
-						#		my $g = $child->toString;
-						#		warn $g;
-						#		print "\n";
-						#		$text .= $g;
-						#	}
-						#}
-                    }						
+                    if ($name eq 'p') {
+                        # gets text with in <p> tags
+                        $text .= $child->textContent;
+
+                        # TODO get videos, they are <object> inside <p> tag
+                        #$text .= $child->toString;
+                        #foreach my $gc ($child->childNodes) {
+                        #   if ($gc->nodeName eq "object") {
+                        #       warn "object:";
+                        #       my $g = $child->toString;
+                        #       warn $g;
+                        #       print "\n";
+                        #       $text .= $g;
+                        #   }
+                        #}
+                    }
                 }
 
                 $contents{$key} = $text;
@@ -331,16 +330,16 @@ while ($track_num < $max) {
     #foreach my $key (keys %contents) {
     # we want the content ordered correctly
     foreach my $key ((
-                      'Location',
-                      'Overview',
-                      'Grade',
-                      'Access',
-                      'Description',
-                      'Getting there',
-                      'Other notes',
-                      'Length',
-                      'Conditions',
-                      'Last modified'
+        'Location',
+        'Overview',
+        'Grade',
+        'Access',
+        'Description',
+        'Getting there',
+        'Other notes',
+        'Length',
+        'Conditions',
+        'Last modified',
     )) {
         next unless $contents{$key};
         $data->{$area_name}{$track_num}{content} .= "    <tr>\n";
@@ -402,10 +401,10 @@ while ($track_num < $max) {
     #   <LineString>
     #       <coordinates>
 
-	# NB the KML files on tracks seem to have multiple and varying namespaces
-	# this meant findNodes failed due to findNodes caring about namespaces when we dont
-	# this should grab coords regardless of stupid fucking namespaces
-	foreach my $node ( $xc->findnodes(q{//*[name() = 'coordinates']}) ) {
+    # NB the KML files on tracks seem to have multiple and varying namespaces
+    # this meant findNodes failed due to findNodes caring about namespaces when we dont
+    # this should grab coords regardless of stupid fucking namespaces
+    foreach my $node ( $xc->findnodes(q{//*[name() = 'coordinates']}) ) {
 
         my $coords = $node->textContent;
         my $line_name;
